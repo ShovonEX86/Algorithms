@@ -1,0 +1,59 @@
+import heapq
+input = open('Input file.txt','r')
+
+data = input.readlines()
+graph = {}
+heur = {}
+for i in range(len(data)):
+    a = data[i].split(" ")
+    graph[a[0]] = []
+    heur[a[0]] = int(a[1])
+    for j in range(2,len(a)-1,2):
+        graph[a[0]].append((a[j],int(a[j+1])))
+
+def A_star(graph,src,des):
+
+    if src not in graph or des not in graph:
+        print("Source/Destination Invalid")
+
+    else:
+        visit = []
+        heapq.heappush(visit, (0 , src))
+        path_cost = {i: float('inf') for i in graph}
+        path_cost[src] = 0
+        total_cost = {i: float('inf') for i in graph}
+        total_cost[src] = heur[src]
+        parent = {i: None for i in graph}
+
+        while visit:
+            node = heapq.heappop(visit)[1]
+
+            if node == des:
+                path = [node]
+                while parent[node] != None:
+                    path.append(parent[node])
+                    node = parent[node]
+                return Print_func(path[-1::-1] , path_cost[des])
+
+            for child,cost in graph[node]:
+                par_chld_cost = path_cost[node] + cost
+
+                if par_chld_cost < path_cost[child]:
+                    parent[child] = node
+                    path_cost[child] = par_chld_cost
+                    total_cost[child] = path_cost[child]  + heur[child]
+                    heapq.heappush(visit , (total_cost[child] , child))
+
+def Print_func(lis,cost):
+    if lis == None:
+        print("PATH NOT FOUND")
+    print("Path:",end=" ")
+    for i in range(len(lis)):
+        if i == len(lis) - 1:
+            print(lis[i])
+        else:
+            print(lis[i],"->", end=" ")
+
+    print(f'Total distance: {cost} km')
+
+A_star(graph,"Arad","Bucharest")
